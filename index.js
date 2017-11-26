@@ -1,36 +1,31 @@
 const express = require('express');
 const qrCode = require('qrcode-npm');
+const bodyParser = require('body-parser');
+const helpers = require('./helpers.js');
 
 const app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 
 app.set('port', process.env.PORT || 3000 );
 
 app.get('/', (req, res) => {
-  var qr = qrCode.qrcode(4, 'M');
-  qr.addData("hello");
-  qr.make();
   res.writeHeader(200, {"Content-Type": "text/html"});  
-  console.log('broken');
-  let img = qr.createImgTag(4)
-  let reg = /"([^"]*)"/g;
-  let result = img.match(reg)[0];
-  res.end(result);    // creates an <img> tag as text
+  res.end('');    // creates an <img> tag as text
 });
 
 app.post('/login', (req, res) => {
-  console.log('Login post');
   let username = req.body.username;
   let password = req.body.password;
 
-  var qr = qrCode.qrcode(4, 'M');
-  qr.addData("hello");
-  qr.make();
-  res.writeHeader(200, {"Content-Type": "text/html"});  
-  console.log('broken');
-  let img = qr.createImgTag(4)
-  let reg = /"([^"]*)"/g;
-  let result = img.match(reg)[0];
-  res.end(result);
+  let qr = helpers.getQRCode(`The username is ${username} and the password is ${password}.`);
+
+  if (username && password) {
+    res.end(qr);
+  } else {
+    res.end('https://static.vix.com/es/sites/default/files/styles/large/public/w/webcomic-name-oh-no.png?itok=HzW3_IIC');
+  }
 });
 
 
