@@ -1,0 +1,1 @@
+module.exports = 'mongodb://<dbuser>:<dbpassword>@ds119486.mlab.com:19486/handshake';
