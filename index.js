@@ -3,7 +3,7 @@ const qrCode = require('qrcode-npm');
 
 const app = express();
 
-app.set('port', 3000 || process.env.PORT );
+app.set('port', process.env.PORT || 3000 );
 
 app.get('/', (req, res) => {
   var qr = qrCode.qrcode(4, 'M');
@@ -30,7 +30,7 @@ app.post('/login', (req, res) => {
   let reg = /"([^"]*)"/g;
   let result = img.match(reg)[0];
   res.end(result);
-  
+
 });
 
 
