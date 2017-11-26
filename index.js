@@ -21,7 +21,7 @@ app.post('/login', (req, res) => {
   let username = req.body.username;
   let password = req.body.password;
 
-  if (username && password) {
+  if (username !== '' && password !== '') {
     var qr = qrCode.qrcode(4, 'M');
     qr.addData("hello");
     qr.make();
