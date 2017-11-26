@@ -18,6 +18,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
+  console.log('Login post');
   let username = req.body.username;
   let password = req.body.password;
 
@@ -30,7 +31,6 @@ app.post('/login', (req, res) => {
   let reg = /"([^"]*)"/g;
   let result = img.match(reg)[0];
   res.end(result);
-
 });
 
 
