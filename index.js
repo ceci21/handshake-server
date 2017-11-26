@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 
 const MONGODB_URI = require('./db/mongo.js');
 
+var users = [];
 
 mongoose.connect(MONGODB_URI);
 
@@ -35,7 +36,6 @@ app.use(bodyParser.json())
 app.set('port', process.env.PORT || 3000 );
 
 app.get('/', (req, res) => {
-  console.log('SERVER: (GET) Server index')
   res.writeHeader(200, {"Content-Type": "text/html"});  
   res.end('');    // creates an <img> tag as text
 });
@@ -66,19 +66,14 @@ app.post('/signup', async (req, res) => {
 	res.end(JSON.stringify(signupResponse));
 });
 
-app.post('/qrcode', async (req, res) => {
+app.post('/qrcode', (req, res) => {
   console.log('SERVER: (POST) Getting QR code...');
 
-  let message = req.body.message;
+  let message = req.session.username;
   
   let qr = helpers.getQRCode(message);
 
-  if (username && password) {
-    res.end(qr);
-  } else {
-    res.end('https://static.vix.com/es/sites/default/files/styles/large/public/w/webcomic-name-oh-no.png?itok=HzW3_IIC');
-  }
-})
-
+  res.end(qr);
+});
 
 app.listen(app.get('port'), () => console.log('Example app listening on port!'))
