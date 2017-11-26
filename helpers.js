@@ -16,6 +16,10 @@ helpers.getQRCode = function(data) {
 };
 
 helpers.signup = async function(data) {
+	let response = {
+		status: null,
+		message: null
+	};
 	const [user] = await User.find({ username: data.username }, 'username password').exec();
 	if (user == null) {
 		const newUser = new User({
@@ -23,20 +27,36 @@ helpers.signup = async function(data) {
 			password: User.generateHash(data.password),
 		});
 		const result = await newUser.save();
-		return 'SERVER: Signup successful.';
+		response.status = true,
+		response.message = 'SERVER: Signup successful.'
+		return response;
 	} else {
-		return `SERVER: User ${data.username} already exists.`;
+		response.status = false,
+		response.message = `SERVER: ${data.username} already exists.`
+		return response;
 	}
 };
 
 helpers.login = async function(data, callback) {
+	let response = {
+		status: null,
+		message: null
+	};
 	const [user] = await User.find({ username: data.username }, 'username password').exec();
 	if (user == null) {
-		return `SERVER: User ${data.username} not found.`;
+		response.status = false;
+		response.message = `SERVER: User ${data.username} not found.`;
+		return response;
 	} else {
-		const res = await User.validatePassword(data.password, user.password);
-		if (res) return `SERVER: Login successful.`;
-		return `SERVER: Password does not match.`;
+		const isValidPassword = await User.validatePassword(data.password, user.password);
+		if (isValidPassword) {
+			response.status = true;
+			response.message = `SERVER: Login successful.`;
+			return response;
+		}
+		response.status = false;
+		response.message = `SERVER: Password does not match.`;
+		return response;
 	}
 };
 

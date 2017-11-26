@@ -24,9 +24,8 @@ const app = express();
 
 app.use(session({
   secret: 'keyboard cat',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true }
+  resave: true,
+  saveUninitialized: true
 }))
 
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -41,18 +40,30 @@ app.get('/', (req, res) => {
   res.end('');    // creates an <img> tag as text
 });
 
+app.get('/username', async (req, res) => {
+  console.log('SERVER: (GET) RETRIEVING USERNAME...');
+  console.log('Session username: ', req.session.username);
+  if (req.session.username) {
+    res.end(req.session.username);
+  } else {
+    res.end('');
+  }
+});
+
 app.post('/login', async (req, res) => {
   console.log('SERVER: (POST) Logging in...');
-  let message = await helpers.login(req.body);
-	console.log(message);
-	res.end(message);
+  req.session.username = '';
+  let loginResponse = await helpers.login(req.body);
+  if (loginResponse.status) {
+    req.session.username = req.body.username;
+  }
+	res.end(JSON.stringify(loginResponse));
 });
 
 app.post('/signup', async (req, res) => {
   console.log('SERVER: (POST) Signing up...');
-  let message = await helpers.signup(req.body);
-	console.log(message);
-	res.end(message);
+  let signupResponse = await helpers.signup(req.body);
+	res.end(JSON.stringify(signupResponse));
 });
 
 app.post('/qrcode', async (req, res) => {
