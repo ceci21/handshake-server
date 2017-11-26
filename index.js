@@ -8,11 +8,11 @@ app.get('/', (req, res) => {
   qr.addData("hello");
   qr.make();
   res.writeHeader(200, {"Content-Type": "text/html"});  
-  
+  console.log('broken');
   let img = qr.createImgTag(4)
   let reg = /"([^"]*)"/g;
   let result = img.match(reg)[0];
-  
+
   res.end(result);    // creates an <img> tag as text
 });
 
