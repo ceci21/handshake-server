@@ -21,19 +21,16 @@ app.post('/login', (req, res) => {
   let username = req.body.username;
   let password = req.body.password;
 
-  if (username !== '' && password !== '') {
-    var qr = qrCode.qrcode(4, 'M');
-    qr.addData("hello");
-    qr.make();
-    res.writeHeader(200, {"Content-Type": "text/html"});  
-    console.log('broken');
-    let img = qr.createImgTag(4)
-    let reg = /"([^"]*)"/g;
-    let result = img.match(reg)[0];
-    res.end(result);
-  } else {
-    res.end('');
-  }
+  var qr = qrCode.qrcode(4, 'M');
+  qr.addData("hello");
+  qr.make();
+  res.writeHeader(200, {"Content-Type": "text/html"});  
+  console.log('broken');
+  let img = qr.createImgTag(4)
+  let reg = /"([^"]*)"/g;
+  let result = img.match(reg)[0];
+  res.end(result);
+  
 });
 
 
