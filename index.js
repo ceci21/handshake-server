@@ -113,8 +113,6 @@ app.post('/handshake', (req, res) => {
       delete LOGGED_IN_USERS.scanningUser;
       clearInterval(intervalId);
       res.end('');
-    } else {
-      res.end('Not a valid user')
     }
   };
   if (scanningUser === scannedUser) {
