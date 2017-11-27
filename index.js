@@ -8,7 +8,9 @@ const mongoose = require('mongoose');
 
 const MONGODB_URI = require('./db/mongo.js');
 
-var LOGGED_IN_USERS = {};
+const LOGGED_IN_USERS = {};
+const TIMERS = [];
+
 
 const handshake = (req, res) => {
   helpers.handshake(data);
@@ -87,18 +89,30 @@ app.post('/handshake', (req, res) => {
   let scanningUser = req.body.scanningUser;
   let scannedUser = req.body.scannedUser;
 
-
-
   var checkForHandshake = () => {
     LOGGED_IN_USERS[scanningUser] = scannedUser;
     if (LOGGED_IN_USERS[scannedUser] === scanningUser && LOGGED_IN_USERS[scanningUser] === scannedUser) {
+      console.log(`Handshake between ${scanningUser} and ${scannedUser} made!`);
+      // Remove user property.
       delete LOGGED_IN_USERS.scanningUser;
-      clearTimeout(checkForHandshake);
+
+      // End response.
       res.end('');
+
+      // Remove all timers.
+      for (var timer of TIMERS) {
+        clearTimeout(timer);
+      }
     }
-    setTimeout(checkForHandshake, 250);
+    TIMERS.push(setTimeout(checkForHandshake, 250));
   };
-  setTimeout(checkForHandshake, 250);
+  
+  if (scanningUser === scannedUser) {
+    res.end('');
+  } else {
+    TIMERS.push(setTimeout(checkForHandshake, 250));
+  }
+  
 });
 
 
