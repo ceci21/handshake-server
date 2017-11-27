@@ -1,5 +1,6 @@
 const qrCode = require('qrcode-npm');
 const User = require('./db/models/user');
+const Entry = require('./db/models/entry');
 
 let helpers = {};
 
@@ -37,7 +38,7 @@ helpers.signup = async function(data) {
 	}
 };
 
-helpers.login = async function(data, callback) {
+helpers.login = async function(data) {
 	let response = {
 		status: null,
 		message: null
@@ -57,6 +58,17 @@ helpers.login = async function(data, callback) {
 		response.status = false;
 		response.message = `SERVER: Password does not match.`;
 		return response;
+	}
+};
+
+helpers.getUserData = async function(data) {
+	const user = await User.findOne({ username: data.username }).exec();
+	console.log(user);
+	if (user == null) {
+		return `That user does not exist.`;
+	} else {
+		// console.log('User entries: ', entries);
+		return `That user exists.`;
 	}
 };
 

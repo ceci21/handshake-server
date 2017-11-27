@@ -31,8 +31,15 @@ db.once('open', () => {
 
 io.on('connection', (socket) => {
   console.log('A user connected!');
-  socket.on('playSound', () => {
-    io.emit('playSound');
+  socket.on('playSound', (type) => {
+    console.log('Type: ', type);
+    if (type === 'success') {
+      io.emit('playSound', 'success');
+    } else if (type === 'beep') {
+      io.emit('playSound', 'beep');
+    } else if (type === 'fail') {
+      io.emit('playSound', 'fail');
+    }
   });
 })
 
@@ -89,26 +96,31 @@ app.post('/qrcode', (req, res) => {
   res.end(qr);
 });
 
-app.post('/handshake', (req, res) => {
-  console.log('Req.body: ', req.body);
+app.post('/userdata', async (req, res) => {
+  let getUserDataResponse = await helpers.getUserData(req.body);
+  res.end(getUserDataResponse);
+});
 
+app.post('/handshake', (req, res) => {
+  console.log('SERVER: (POST) Doing handshake...');
   let scanningUser = req.body.scanningUser;
   let scannedUser = req.body.scannedUser;
-
+  let intervalId;
   var checkForHandshake = () => {
     LOGGED_IN_USERS[scanningUser] = scannedUser;
     if (LOGGED_IN_USERS[scannedUser] === scanningUser && LOGGED_IN_USERS[scanningUser] === scannedUser) {
-      console.log('Handshake made!!');
+      console.log('SERVER: (POST) Handshake made!!');
       delete LOGGED_IN_USERS.scanningUser;
-      clearInterval(checkForHandshake);
+      clearInterval(intervalId);
       res.end('');
+    } else {
+      res.end('Not a valid user')
     }
   };
-
   if (scanningUser === scannedUser) {
     res.end('');
   } else {
-    setInterval(checkForHandshake, 250);
+    intervalId = setInterval(checkForHandshake, 250);
   }
 });
 
