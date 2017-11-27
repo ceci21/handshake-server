@@ -1,3 +1,4 @@
+
 const express = require('express');
 const session = require('express-session')
 const qrCode = require('qrcode-npm');
@@ -7,7 +8,11 @@ const mongoose = require('mongoose');
 
 const MONGODB_URI = require('./db/mongo.js');
 
-var users = [];
+var LOGGED_IN_USERS = {};
+
+const handshake = (req, res) => {
+  helpers.handshake(data);
+}
 
 mongoose.connect(MONGODB_URI);
 
@@ -75,5 +80,27 @@ app.post('/qrcode', (req, res) => {
 
   res.end(qr);
 });
+
+app.post('/handshake', (req, res) => {
+  console.log('Req.body: ', req.body);
+
+  let scanningUser = req.body.scanningUser;
+  let scannedUser = req.body.scannedUser;
+
+
+
+  var checkForHandshake = () => {
+    LOGGED_IN_USERS[scanningUser] = scannedUser;
+    if (LOGGED_IN_USERS[scannedUser] === scanningUser && LOGGED_IN_USERS[scanningUser] === scannedUser) {
+      delete LOGGED_IN_USERS.scanningUser;
+      clearTimeout(checkForHandshake);
+      res.end('');
+    }
+    setTimeout(checkForHandshake, 250);
+  };
+  setTimeout(checkForHandshake, 250);
+});
+
+
 
 app.listen(app.get('port'), () => console.log('Example app listening on port!'))
