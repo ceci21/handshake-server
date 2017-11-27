@@ -1,16 +1,17 @@
 
 const express = require('express');
+const app = express();
 const session = require('express-session')
 const qrCode = require('qrcode-npm');
 const bodyParser = require('body-parser');
 const helpers = require('./helpers.js');
 const mongoose = require('mongoose');
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
 const MONGODB_URI = require('./db/mongo.js');
 
-const LOGGED_IN_USERS = {};
-const TIMERS = [];
-
+var LOGGED_IN_USERS = {};
 
 const handshake = (req, res) => {
   helpers.handshake(data);
@@ -28,7 +29,12 @@ db.once('open', () => {
 	console.log('CONNECTED TO MONGOOSE');
 });
 
-const app = express();
+io.on('connection', (socket) => {
+  console.log('A user connected!');
+  socket.on('playSound', () => {
+    io.emit('playSound');
+  });
+})
 
 app.use(session({
   secret: 'keyboard cat',
@@ -92,29 +98,20 @@ app.post('/handshake', (req, res) => {
   var checkForHandshake = () => {
     LOGGED_IN_USERS[scanningUser] = scannedUser;
     if (LOGGED_IN_USERS[scannedUser] === scanningUser && LOGGED_IN_USERS[scanningUser] === scannedUser) {
-      console.log(`Handshake between ${scanningUser} and ${scannedUser} made!`);
-      // Remove user property.
+      console.log('Handshake made!!');
       delete LOGGED_IN_USERS.scanningUser;
-
-      // End response.
+      clearInterval(checkForHandshake);
       res.end('');
-
-      // Remove all timers.
-      for (var timer of TIMERS) {
-        clearTimeout(timer);
-      }
     }
-    TIMERS.push(setTimeout(checkForHandshake, 250));
   };
-  
+
   if (scanningUser === scannedUser) {
     res.end('');
   } else {
-    TIMERS.push(setTimeout(checkForHandshake, 250));
+    setInterval(checkForHandshake, 250);
   }
-  
 });
 
 
 
-app.listen(app.get('port'), () => console.log('Example app listening on port!'))
+http.listen(app.get('port'), () => console.log('Example app listening on port!'))
